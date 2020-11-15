@@ -4,7 +4,7 @@ from random import random, uniform, randrange
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-np.random.seed(20000)
+np.random.seed(200)
 
 f = np.array([500,300,200])
 # capacity
@@ -82,14 +82,15 @@ for t in reversed(range(T)):
 
 
 expected_revenue = np.max(V)
-print(expected_revenue)
+
+print("expected revenue:",expected_revenue)
 print("===============")
 
 
 # ========== plot optimal policy =========
 #sns.heatmap(optimal)
 #plt.show()
-
+'''
 # =========== simulate 1000 times =========
 
 simulation_profit_array = np.empty(1000)
@@ -118,25 +119,33 @@ print(np.max(simulation_profit_array))
 print("========min of profit =======")
 print(np.min(simulation_profit_array))
 
-
-# ============ demand simulation plot ================
 '''
+# ============ demand simulation plot ================
+
 capacity_left = 100
 total_profilt = 0
 demand_choose = np.array([])
+sell_price = np.array([])
+capacity_record = np.array([])
 random_demand_array = np.random.rand(600)
 for t in range(T):
+	capacity_record = np.append(capacity_record,capacity_left)
 	# class that demand accept, 0: first class -> 2 thir
 	if capacity_left ==0:
 		break
-
+	j = optimal[capacity_left-1,t]-1
+	k = int(j)
+	#print(capacity_left)
+	#print(k)
+	sell_price = np.append(sell_price,f[k])
 	demand = random_demand_array[t]*10
-	if demand > optimal[capacity_left-1,t]:
+	#if demand > optimal[capacity_left-1,t]:
+	if demand > 3:
 		demand_choose = np.append(demand_choose,0)
-	if demand <= optimal[capacity_left-1,t]:
-		#demand_choose = np.append(demand_choose,optimal[capacity_left-1,t])
+	if demand <=3:
 		d = int(demand)
 		demand_choose = np.append(demand_choose,f[d])
+	if demand <= optimal[capacity_left-1,t]:
 
 		j = optimal[capacity_left-1,t]-1
 		k = int(j)
@@ -146,13 +155,28 @@ for t in range(T):
 		continue
 shape = np.shape(demand_choose)
 
+print("=====total_profit for simualting 1 time====")
 print(total_profilt)
-print("shape:",shape)
-print(len(demand_choose))
+print("===========================================")
+print("Ploting graph......")
+
 t1 = np.arange(0,len(demand_choose),1)
-plt.plot(t1, demand_choose, 'o',ms=5, alpha=0.7, mfc='orange')
-plt.ylabel('Price')
-plt.xlabel('Time')
+ax1 = plt.subplot(211)
+plt.ylabel('Price',fontsize = 15)
+plt.xlabel('Time',fontsize = 15)
+plt.xticks(fontsize = 10)
+plt.yticks(fontsize = 10)
+plt.plot(t1, demand_choose, 'o',ms=7, alpha=0.5, color='orange',label='demand')
+plt.plot(t1, sell_price, '.', color='blue',label='price of policy')
+ax1.legend(loc='lower right',fontsize = 12)
+
+ax2 = plt.subplot(212)
+plt.plot(t1, capacity_record, 'o-',ms=3, color = 'green', label = 'remain capacity')
+plt.ylabel('Remain capacity',fontsize = 15)
+plt.xlabel('Time',fontsize = 15)
+plt.xticks(fontsize = 10)
+plt.yticks(fontsize = 10)
+ax2.legend(loc = 'center right',fontsize = 12)
+
 plt.show()
 
-'''
