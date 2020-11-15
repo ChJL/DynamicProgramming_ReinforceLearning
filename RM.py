@@ -1,7 +1,11 @@
 import numpy as np
 from math import exp
+from random import random, uniform, randrange
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+np.random.seed(20000)
+
 f = np.array([500,300,200])
 # capacity
 C = 100
@@ -15,7 +19,6 @@ vu = np.array([0.01,0.005,0.0025])
 # value function & initialize
 V = np.empty((C+1,T+1,3))
 
-print("===")
 #print(V.shape)
 # optimal policy matrix initialize
 optimal = np.empty((C,T))
@@ -25,14 +28,14 @@ for i in range(C+1):
 	for j in range(3):
 		V[i,T,j] = 0
 V[0] = 0
+
+# Set the policy for Price can not go down (1)
 Price_Not_Go_Down = 0
+
 #for each time level
 for t in reversed(range(T)):
 	#for each capacity level
-	#print(t)s
 	for x in range(1,C+1):
-		#print(x)
-		#print("======== T:",(t+1)," C: ",x," ========")
 		#for each class
 		for j in classes:
 
@@ -45,18 +48,16 @@ for t in reversed(range(T)):
 			# this could be a for loop since the probabilities may be accumulated
 			# because when price is in class3, people in class1 and class2 are also
 			# williing to pay
-			# here !!!!! focus j+1
+
 			for i in range(j+1):
 				prob_ini = mu[i]*exp(vu[i]*t)
 				prob_acc = prob_acc + prob_ini
 				prob_rej = prob_rej - prob_ini
 			total_revnue = 0
 
-			# get revenue by given popularities
-			# ============ for avoiding price drop : for loop should be range(j,3) ============
+			# get revenue
 			for k in range(0,3):
 				total_revnue = prob_acc*(f[j]+V[x-1,t+1,k])  + prob_rej*V[x,t+1,k]
-				#print("k:",k," total_revnue:",total_revnue)
 				if Price_Not_Go_Down == 0:
 					if (total_revnue > max_revenue):
 						max_revenue = total_revnue
@@ -67,8 +68,8 @@ for t in reversed(range(T)):
 						max_revenue = total_revnue
 						V[x,t,j] = max_revenue
 						#optimal[x-1,t] = k+1
-			#V[x,t,j] = max_revenue
-			#print("=== j:",j," end =====")
+
+		# fill in the optimal policy matrix
 		ini_max = 0
 		for v in range(3):
 			if V[x,t,v] > ini_max:
@@ -79,14 +80,79 @@ for t in reversed(range(T)):
 
 
 
+
 expected_revenue = np.max(V)
 print(expected_revenue)
-print("==============")
-print(optimal)
-sns.heatmap(optimal)
+print("===============")
+
+
+# ========== plot optimal policy =========
+#sns.heatmap(optimal)
+#plt.show()
+
+# =========== simulate 1000 times =========
+
+simulation_profit_array = np.empty(1000)
+# simulation and calculate the profit:
+for simulation_t in range(1000):	
+	capacity_left = 100
+	total_profilt = 0
+	random_demand_array = np.random.rand(600)
+	for t in range(T):
+		if capacity_left ==0:
+			break
+		demand = random_demand_array[t]*10
+		if demand <= optimal[capacity_left-1,t]:
+			j = optimal[capacity_left-1,t]-1
+			k = int(j)
+			total_profilt = f[k] + total_profilt
+			capacity_left -= 1
+		else:
+			continue
+	simulation_profit_array[simulation_t] = total_profilt
+
+print("=====average of 1000 times=====")
+print(np.average(simulation_profit_array))
+print("========max of profit =======")
+print(np.max(simulation_profit_array))
+print("========min of profit =======")
+print(np.min(simulation_profit_array))
+
+
+# ============ demand simulation plot ================
+'''
+capacity_left = 100
+total_profilt = 0
+demand_choose = np.array([])
+random_demand_array = np.random.rand(600)
+for t in range(T):
+	# class that demand accept, 0: first class -> 2 thir
+	if capacity_left ==0:
+		break
+
+	demand = random_demand_array[t]*10
+	if demand > optimal[capacity_left-1,t]:
+		demand_choose = np.append(demand_choose,0)
+	if demand <= optimal[capacity_left-1,t]:
+		#demand_choose = np.append(demand_choose,optimal[capacity_left-1,t])
+		d = int(demand)
+		demand_choose = np.append(demand_choose,f[d])
+
+		j = optimal[capacity_left-1,t]-1
+		k = int(j)
+		total_profilt = f[k] + total_profilt
+		capacity_left -= 1
+	else:
+		continue
+shape = np.shape(demand_choose)
+
+print(total_profilt)
+print("shape:",shape)
+print(len(demand_choose))
+t1 = np.arange(0,len(demand_choose),1)
+plt.plot(t1, demand_choose, 'o',ms=5, alpha=0.7, mfc='orange')
+plt.ylabel('Price')
+plt.xlabel('Time')
 plt.show()
 
-
-
-
-
+'''
