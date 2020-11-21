@@ -5,12 +5,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 Dimension = 91
+
+#pi*Probability = pi
 # Probability matrix
 Prob_matrix = np.zeros((Dimension,Dimension))
 
 # Distribution Pi, allocate the initial condition
 Pi_init = np.zeros((Dimension))
 Pi_init[0] =1
+
 
 # allocate the value in Probability matrix
 for i in range(Dimension):
@@ -45,6 +48,7 @@ Reward_vec = np.zeros((Dimension))
 for i in range(Dimension):
 	Reward_vec[i] = i*0.01 + 0.1
 Average_cost = Pi_last_one@Reward_vec
+print(Reward_vec)
 print("average cost: ", Average_cost)
 
 
@@ -53,6 +57,8 @@ print("average cost: ", Average_cost)
 # solve -> [I-P]V + Phi = r 
 print("=====Poisson equation matrix =====")
 print(" solve -> [I-P]V + Phi = r ")
+
+print("==================================")
 Reward_vec_Poisson = np.zeros((Dimension+1))
 Poisson_matrix = np.zeros((Dimension+1, Dimension+1))
 for i in range(Dimension):
@@ -67,10 +73,32 @@ Poisson_matrix[91][0] = 1
 Poisson_matrix[91][91] = 0
 
 print(Poisson_matrix)
-print("======reward vector=====")
-print(Reward_vec_Poisson)
+#print("======reward vector=====")
+#print(Reward_vec_Poisson)
 
 C = np.linalg.solve(Poisson_matrix, Reward_vec_Poisson)
 
 print("=====result of Poisson Equation=====")
 print("phi is:", C[-1])
+
+# for plot stationary distribution
+x = np.zeros((Dimension))
+for i in range(Dimension):
+	x[i] = i
+fig, ax = plt.subplots()
+plt.bar(x, Pi_last_one, color ="green",label='Probability' )
+ax.annotate('0.1461', xy=(0, 0.1461), xytext=(20, 0.145),
+            arrowprops=dict(facecolor='black', shrink=0.01, width = 0.1, headwidth=2),
+            )
+ax.annotate('0.1315', xy=(1, 0.1315), xytext=(20, 0.1315),
+            arrowprops=dict(facecolor='black', shrink=0.01, width = 0.1, headwidth=2),
+            )
+ax.annotate('0.1170', xy=(2, 0.117), xytext=(20, 0.117),
+            arrowprops=dict(facecolor='black', shrink=0.01, width = 0.1, headwidth=2),
+            )
+ax.legend(loc='upper right',fontsize = 12)
+plt.ylabel('Probability in Stationary Distribution',fontsize = 13)
+plt.xlabel('State',fontsize = 13)
+plt.xticks(fontsize = 11)
+plt.yticks(fontsize = 11)
+plt.show()
