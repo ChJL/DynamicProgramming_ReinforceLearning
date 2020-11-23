@@ -107,6 +107,7 @@ def choosemin (array1, array2):
 	for i in range(len(array1)):
 		array3[i] = min(array1[i],array2[i])
 	return array3
+#========
 
 V_init = np.zeros((Dimension))
 V = V_init
@@ -126,9 +127,53 @@ for i in range(Dimension):
 	V_diff = V_decision - V
 	V = V_decision
 Value_phi = V_diff[0]
-print("Value iteration phi: ", Value_phi)
-# ==================================================
-# ========== Policy iteration ======================
+print("Value iteration phi: ", Value_phi,"\n")
+# = ================================================ =
+# = ================ Policy iteration ============== =
+# = ================================================ =
+
+def choosemin_action (array1, array2):
+	array3 = np.zeros((len(array1)))
+	for i in range(len(array1)):
+		if array1[i]<array2[i]:
+			array3[i] = 0
+		else:
+			array3[i] = 1
+	return array3
+
+# =================================
+'''
+in Alpha,
+0 : action 1
+1 : action 2
+we set the initial Alpha [0,0,0,.....,0]
+'''
+Alpha_init = np.zeros((Dimension))
+Alpha = Alpha_init
+for i in range(100):
+	reward_pol = np.zeros((Dimension))
+	prob_pol = np.zeros((Dimension,Dimension))
+	for j in range(Dimension):
+		if Alpha[j] ==0:
+			reward_pol[j] = Reward_1[j]
+			prob_pol[j] = Prob_first[j]
+
+		else:
+			reward_pol[j] = Reward_2[j]
+			prob_pol[j] = Prob_second[j]
+
+	poisson_V = PoissonEq(reward_pol,prob_pol)[:-1]
+	action1 = Reward_1 + Prob_first@poisson_V
+	action2 = Reward_2 + Prob_second@poisson_V
+	Alpha = choosemin_action(action1,action2)
+	if i == 99:
+		policy_phi = PoissonEq(reward_pol,prob_pol)[-1]
+print("=======Poisson policy iteration")
+print("Policy action:")
+print(Alpha)
+
+print("Policy iteration Phi: ",policy_phi)
+
 
 
 
