@@ -32,55 +32,53 @@ for i in range(300):
 	if i == 299:
 		Pi_last_one = Pi_after
 
-print("====last two =====")
-print(Pi_last_two)
-print("====last one =====")
-print(Pi_last_one)
+#print("====last two =====")
+#print(Pi_last_two)
+#print("====last one =====")
+#print(Pi_last_one)
 
 Pi_diff = np.zeros((Dimension))
 for i in range(Dimension):
 	Pi_diff[i] = Pi_last_one[i] - Pi_last_two[i]
 
-print("======difference=====")
-print(Pi_diff)
+#print("======difference=====")
+#print(Pi_diff)
 
 Reward_vec = np.zeros((Dimension))
 for i in range(Dimension):
 	Reward_vec[i] = i*0.01 + 0.1
 Average_cost = Pi_last_one@Reward_vec
-print(Reward_vec)
-print("average cost: ", Average_cost)
+#print(Reward_vec)
+print("average cost: ", Average_cost,"\n")
 
 
 # ==================
 # V + Phi = r + PV
 # solve -> [I-P]V + Phi = r 
-print("=====Poisson equation matrix =====")
-print(" solve -> [I-P]V + Phi = r ")
+print("=====Poisson equation=====")
+print("Solve : [I-P]V + Phi = r ")
 
-print("==================================")
-Reward_vec_Poisson = np.zeros((Dimension+1))
-Poisson_matrix = np.zeros((Dimension+1, Dimension+1))
-for i in range(Dimension):
-	for j in range(Dimension):
-		if Prob_matrix[i][j] !=0:
-			Poisson_matrix[i][j] = - Prob_matrix[i][j] 
-for i in range(Dimension):
-	Poisson_matrix[i][i] = Poisson_matrix[i][i] +1
-	Poisson_matrix[i][91] = 1
-	Reward_vec_Poisson[i] = 0.1 + i*0.01
-Poisson_matrix[91][0] = 1
-Poisson_matrix[91][91] = 0
+def PoissonEq (reward_v, prob_matrix):
+	reward_vec = np.append(reward_v,0)
+	poisson_matrix = np.zeros((92, 92))
+	for i in range(91):
+		for j in range(91):
+			if prob_matrix[i][j] !=0:
+				poisson_matrix[i][j] = - prob_matrix[i][j] 
+	for i in range(91):
+		poisson_matrix[i][i] = poisson_matrix[i][i] +1
+		poisson_matrix[i][91] = 1
+		#reward_vec[i] = 0.1 + i*0.01
+	poisson_matrix[91][0] = 1
+	poisson_matrix[91][91] = 0
+	A = np.linalg.solve(poisson_matrix, reward_vec)
+	return A
 
-print(Poisson_matrix)
-#print("======reward vector=====")
-#print(Reward_vec_Poisson)
 
-C = np.linalg.solve(Poisson_matrix, Reward_vec_Poisson)
+#print("=====result of Poisson Equation=====")
+print("PE phi is:",PoissonEq(Reward_vec, Prob_matrix)[-1],"\n")
 
-print("=====result of Poisson Equation=====")
-print("phi is:", C[-1])
-
+'''
 # for plot stationary distribution
 x = np.zeros((Dimension))
 for i in range(Dimension):
@@ -102,3 +100,35 @@ plt.xlabel('State',fontsize = 13)
 plt.xticks(fontsize = 11)
 plt.yticks(fontsize = 11)
 plt.show()
+'''
+print( "======= value iteration ========")
+def choosemin (array1, array2):
+	array3 = np.zeros((len(array1)))
+	for i in range(len(array1)):
+		array3[i] = min(array1[i],array2[i])
+	return array3
+
+V_init = np.zeros((Dimension))
+V = V_init
+Prob_first = Prob_matrix
+Prob_second = np.zeros((Dimension,Dimension))
+Reward_1 = Reward_vec
+Reward_2 = np.zeros((Dimension))
+for i in range(Dimension):
+	Prob_second[i][0] =1
+	Reward_2[i] = 0.5
+
+V_diff = np.zeros((Dimension))
+for i in range(Dimension):
+	V_1_action = Reward_1 + Prob_first@V
+	V_2_action = Reward_2 + Prob_second@V
+	V_decision = choosemin(V_1_action,V_2_action)
+	V_diff = V_decision - V
+	V = V_decision
+Value_phi = V_diff[0]
+print("Value iteration phi: ", Value_phi)
+# ==================================================
+# ========== Policy iteration ======================
+
+
+
