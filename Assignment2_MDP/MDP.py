@@ -128,8 +128,33 @@ for i in range(Dimension):
 	V = V_decision
 Value_phi = V_diff[0]
 print("Value iteration phi: ", Value_phi,"\n")
+
 # = ================================================ =
-# = ================ Policy iteration ============== =
+# = ================ Policy iteration method1 ====== =
+# = ================================================ =
+bestPolicy = np.zeros((Dimension))
+for i in reversed(range(Dimension)):
+    V = PoissonEq(Reward_vec, Prob_matrix) #solution
+    # print("iteration nr: {}, new phi={}".format(i, V[-1]))
+    if i == 90:
+        continueCost = Reward_vec[i]
+    else:
+        continueCost = Reward_vec[i]+Prob_matrix[i][i+1]*V[i+1]
+    repairCost = 0.5 + V[0]
+    # print("continuecost: {}, repaircost={}".format(continueCost, repairCost))
+    # print("previousReward: {}".format(Reward_vec[i]))
+    if continueCost > repairCost:
+        Reward_vec[i] = repairCost
+        bestPolicy[i] = 1
+        if i != 90:
+            Prob_matrix[i][i+1]=0
+        Prob_matrix[i][0]=1
+
+print("poisson iteration new phi is:",PoissonEq(Reward_vec, Prob_matrix)[-1],"\n")
+print(bestPolicy)
+'''
+# = ================================================ =
+# = ================ Policy iteration method2 ====== =
 # = ================================================ =
 
 def choosemin_action (array1, array2):
@@ -142,15 +167,15 @@ def choosemin_action (array1, array2):
 	return array3
 
 # =================================
-'''
-in Alpha,
-0 : action 1
-1 : action 2
-we set the initial Alpha [0,0,0,.....,0]
-'''
+
+#in Alpha,
+#0 : action 1
+#1 : action 2
+#we set the initial Alpha [0,0,0,.....,0]
+
 Alpha_init = np.zeros((Dimension))
 Alpha = Alpha_init
-for i in range(100):
+for i in range(Dimension):
 	reward_pol = np.zeros((Dimension))
 	prob_pol = np.zeros((Dimension,Dimension))
 	for j in range(Dimension):
@@ -166,13 +191,13 @@ for i in range(100):
 	action1 = Reward_1 + Prob_first@poisson_V
 	action2 = Reward_2 + Prob_second@poisson_V
 	Alpha = choosemin_action(action1,action2)
-	if i == 99:
+	if i == 90:
 		policy_phi = PoissonEq(reward_pol,prob_pol)[-1]
 print("=======Poisson policy iteration")
 print("Policy action:")
 print(Alpha)
-
 print("Policy iteration Phi: ",policy_phi)
+'''
 
 
 
