@@ -15,8 +15,9 @@ if __name__ == '__main__':
     human = Human()
     ai = MCTS()
     players = {0: ai, 1: human}
-
-    turn = 1
+    game.render()
+    print("=== start in restricted condition===")
+    turn = 0
     while True:
         current_state = game.state
         action = players[turn].take_action(current_state)
@@ -31,7 +32,11 @@ if __name__ == '__main__':
                 print("winner {0}".format(players[turn]))
             else:
                 print("tie")
-            break
+            game.reset()
+            game.render()
+            print("==== Restart the Game ====")
+            turn = 1
+            #break
 
         # change the player 
         turn = (turn + 1) % 2

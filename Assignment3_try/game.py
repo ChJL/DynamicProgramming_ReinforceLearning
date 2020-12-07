@@ -31,8 +31,8 @@ class State:
 
     def get_available_actions(self):
         """
-        感觉状态的局面返回可以落子的位置，这些位置称之为动作
-        :return: 可行的动作
+        get the actions, which are available
+        :return: available actions
         """
         space = np.where(self.board == 0)
         coordinate = zip(space[0], space[1])
@@ -102,6 +102,10 @@ class Game:
             player = state.player
         else:
             board = np.zeros((Game.game_size, Game.game_size), dtype=np.int32)
+            board[0][1] = 1
+            board[2][0] = 1
+            board[1][1] = -1
+            board[0][2] = -1
             player = Game.start_player
         self.state = State(board, player)
 
@@ -123,6 +127,10 @@ class Game:
             self.state = State(board, player)
         else:
             self.state.board = np.zeros((Game.game_size, Game.game_size), dtype=np.int32)
+            self.state.board[0][1] = 1
+            self.state.board[2][0] = 1
+            self.state.board[1][1] = -1
+            self.state.board[0][2] = -1
             self.state.player = Game.start_player
         return self.state
 

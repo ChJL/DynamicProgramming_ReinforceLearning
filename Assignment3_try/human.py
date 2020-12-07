@@ -28,6 +28,7 @@ class Human:
             action = i, j
             if action not in current_state.get_available_actions():
                 print("action is not acceptable, please re-type")
+                print("available states: ", current_state.get_available_actions())
             else:
                 break
         return action
