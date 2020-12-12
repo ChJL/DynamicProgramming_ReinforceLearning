@@ -1,4 +1,4 @@
 # MCTS
 
-This work is from https://github.com/zhuliquan/tictactoe_mcts
+Implement the Human vs MCTS tictactie
 
