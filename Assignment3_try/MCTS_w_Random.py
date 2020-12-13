@@ -214,6 +214,7 @@ if __name__ == '__main__':
 
 
 	# determine who start first
+	# but for O and X, it still need to revise the self.player in the class
 	turn = 0;
 
 	# how many games should play
