@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from math import sqrt, log
-
+import time
 class Board:
  
     def __init__(self):
@@ -70,6 +70,7 @@ class Board:
             return True, None
         else:
             return False, None
+            
     def show(self):
         board = self.state
         for i in range(3):
@@ -149,6 +150,7 @@ def UCT(rootstate, maxiters):
   s = sorted(root.children, key=lambda c:c.wins/c.visits)
   return s[-1].action
 
+
 class Random_Opponent:
     def __init__(self):
         pass
@@ -190,67 +192,91 @@ class Human:
         return action
 
 if __name__ == '__main__':
-  
-    board = Board()
-    board.restricted_cond()
-    human = Human()
-    rd_opp = Random_Opponent()
-    board.show()
-    
-    print("==== start the game =====")
-    #players = {0: "Random O", 1: "MCTS X"}
-    players = {0: "MCTS O", 1: "Random X"}
-    
-    # determine who start first
-    turn = 0;
 
-    # how many games should play
-    count = 0
+	board = Board()
+	# the game can also start in restricted case
+	#board.restricted_cond()
 
-    # To see the probability
-    win_time = 0
+	# the game can also play by human vs MCTS
+	#human = Human()
+
+	# The Oppenent take random actions
+	rd_opp = Random_Opponent()
+
+	print(" This Pyfile would show you 5 games that are played by: MCTS O vs Random agent X")
+	time.sleep(6)
+	print("====== Start the Game 1=======")
+	# board in initial condition
+	board.show()
 
 
+	players = {0: "MCTS O", 1: "Random X"}
 
-    while count < 100:
-        if turn ==0:
-            ''' MCTS play '''
 
-            #print("=== Player {0} turn ====".format(players[turn]))
-            current_state = board
-            action = UCT(current_state,1000)
-            board.move(action)
-            #board.show()
-            #print("#==={0} move {1} ===#".format(players[turn], action))
-        else:
-            ''' Random Opponent Play'''
+	# determine who start first
+	turn = 0;
 
-            #print("=== Player {0} turn ====".format(players[turn]))
-            current_state = board
-            action = rd_opp.take_action(current_state)
+	# how many games should play
+	count = 0
 
-            board.move(action)
-            #board.show()
-            #print("#==={0} move {1} ===#".format(players[turn], action))
-            
-        # judge the result
-        is_over, winner = board.find_winner()
-        if is_over:
-            #print("=== end game ===")
-            if winner != None:
-                print("winner is : player {0}".format(players[winner]))
-            if winner == 0:
-                win_time += 1
-            else:
-                print(" tie !")
-            count +=1
-            board.show()
-            #board.reset()
-            board.restricted_cond()
-            turn =1
-            if count==100:
-                print("win time of MCTS O: ", win_time)
-                #board.show()
+	# To see the probability
+	win_time = 0
+	los_time = 0
+	tie_time = 0
 
-        turn ^= 1
-    
+
+	while count < 5:
+	    if turn ==0:
+	        ''' MCTS play '''
+
+	        print("=== Player {0} turn ====".format(players[turn]))
+	        current_state = board
+	        action = UCT(current_state,1000)
+	        board.move(action)
+	        board.show()
+	        print("#==={0} move {1} ===#".format(players[turn], action))
+	    else:
+	        ''' Random Opponent Play'''
+
+	        print("=== Player {0} turn ====".format(players[turn]))
+	        current_state = board
+	        action = rd_opp.take_action(current_state)
+
+	        board.move(action)
+	        board.show()
+	        print("#==={0} move {1} ===#".format(players[turn], action))
+	        
+	    # judge the result
+	    is_over, winner = board.find_winner()
+	    if is_over:
+	        print("#========== End game ==========#")
+	        if winner != None:
+	            print("winner is : player {0}".format(players[winner]))
+	            #print("winner is:", winner)
+	            if winner == 0:
+	                win_time += 1
+	            if winner == 1:
+	                los_time += 1
+	            
+	        else:
+	            print(" tie !")
+	            tie_time += 1
+
+	        count +=1
+	        
+
+	        if count == 5:
+	            expected_r = (win_time - los_time)/count
+	            print("In ",count," games, MCTS O win:", win_time," times")
+
+	        else:
+	        	board.reset()
+	        	print()
+	        	#board.restricted_cond()
+	        	print("====== Start the Game ",count+1,"=======")
+	        	board.show()
+
+	        	turn =1
+	        
+
+	    turn ^= 1
