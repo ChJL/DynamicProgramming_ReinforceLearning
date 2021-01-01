@@ -37,7 +37,7 @@ for i in range(N):
 			if j == 49 and k == 3 :
 				conge_weight[i,j,k] = 0
 
-# Calculate the minimum cost in each state, and record the last state (from which state)
+# Calculate the minimum cost in each state, and record the next action
 
 def min_cost(Conge_weight, n, Goal_x, Goal_y):
 	# (Cost to goal coordinate, next action - 0:x-1 up , 1:x+1 down, 2: y-1 left, 3:y+1 right
@@ -54,24 +54,24 @@ def min_cost(Conge_weight, n, Goal_x, Goal_y):
           mincost_matrix[i,j,0] = 0
         else:
           cost = np.array([])
-          pre_action = np.array([])
+          next_action = np.array([])
           if i != 0 :
             cost = np.append(cost, matrix_tmp[i-1,j,0] + Conge_weight[i-1,j,0])
-            pre_action = np.append(pre_action,0)
+            next_action = np.append(next_action,0)
           if i != N-1 :
             cost = np.append(cost, matrix_tmp[i+1,j,0] + Conge_weight[i+1,j,1])
-            pre_action = np.append(pre_action, 1)
+            next_action = np.append(next_action, 1)
           if j != 0 :
             cost = np.append(cost, matrix_tmp[i,j-1,0] + Conge_weight[i,j-1,2])
-            pre_action = np.append(pre_action, 2)
+            next_action = np.append(next_action, 2)
           if j != N-1 : 
             cost = np.append(cost, matrix_tmp[i,j+1,0] + Conge_weight[i,j+1,3])
-            pre_action = np.append(pre_action, 3)
+            next_action = np.append(next_action, 3)
           
           mincost_matrix[i,j,0] = np.min(cost)
           key = np.argmin(cost)
           try:
-            mincost_matrix[i,j,1] = pre_action[key]
+            mincost_matrix[i,j,1] = next_action[key]
           except:
             print("len of cost", len(cost))
             print("error")
@@ -85,7 +85,57 @@ def min_cost(Conge_weight, n, Goal_x, Goal_y):
         break
   return mincost_matrix
 
+# simple Heuristic, this function would return an array of Costs
+def Heuristic(Goal_x, Goal_y, Simu_vec, Simu_t, Conge_cost):
+  H_cost = np.array([])
+  for t in range(Simu_t):
+    i = int(Simu_vec[t,0])
+    j = int(Simu_vec[t,1])
+    total_cost = 0
+    while i != Goal_x or j != Goal_y:
+      moves = np.array([])
+      move_cost = np.array([])
+      # pick the min move from all possible moves
+      if i < Goal_x and i != N-1:
+        moves = np.append(moves, 1) # down
+        move_cost = np.append(move_cost, Conge_cost[i,j,1])
+      if i > Goal_x and i != 0:
+        moves = np.append(moves, 0) # up
+        move_cost = np.append(move_cost, Conge_cost[i,j,0])
+      if j < Goal_y and j != N-1:
+        moves = np.append(moves, 3) # right
+        move_cost = np.append(move_cost, Conge_cost[i,j,3])
+      if j > Goal_y and j != 0:
+        moves = np.append(moves, 2) # left
+        move_cost = np.append(move_cost, Conge_cost[i,j,2])
+      
+      min_move_cost = np.min(move_cost)
+      min_key = np.argmin(move_cost)
+      # calculate the cost so far
+      total_cost += min_move_cost
+      
+      # update the location
+      move = moves[min_key]
+      if move == 1:
+        i = i+1
+      elif move == 0:
+        i = i-1
+      elif move == 3:
+        j = j+1
+      elif move == 2:
+        j = j-1
+    H_cost = np.append(H_cost, total_cost)
+  return H_cost
+
 # this row would take about 37 seconds
 mincost = min_cost(conge_weight, N, goal_x, goal_y)
 
-#print(conge_weight[0])
+# Heuristic simulation parameter:
+simulation_size = 2
+simulation_array = np.zeros((simulation_size,2))
+for i in range(simulation_size):
+  simulation_array[i] = np.random.choice(49,2)
+
+# Simple Heuristic 
+h_cost = Heuristic(goal_x, goal_y, simulation_array, simulation_size, conge_weight)
+
