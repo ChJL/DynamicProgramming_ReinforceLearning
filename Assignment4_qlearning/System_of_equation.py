@@ -141,9 +141,12 @@ n = 0
 
 for i in range(N):
     for j in range(N):
-        v = rewardMatrix[i][j]
-        updateReward(i, j)
-        delta = max(delta, abs(v - tempMatrix[i][j]))
+        if i == 0 and j == 9:
+            continue
+        else:
+            v = rewardMatrix[i][j]
+            updateReward(i, j)
+            delta = max(delta, abs(v - tempMatrix[i][j]))
 
 rewardMatrix = tempMatrix
 
@@ -151,15 +154,18 @@ while delta > threshold:
     delta = 0
     for i in range(N):
         for j in range(N):
-            v = rewardMatrix[i][j]
+            if i == 0 and j == 9:
+                continue
+            else:
+                v = rewardMatrix[i][j]
 
-            updateReward(i, j)
+                updateReward(i, j)
 
-            delta = max(delta, abs(v - tempMatrix[i][j]))
+                delta = max(delta, abs(v - tempMatrix[i][j]))
 
     rewardMatrix = tempMatrix
     n += 1
-    print(n)
+    print(n, delta)
 
 
 # output
@@ -169,4 +175,3 @@ for i in range(0, N):
         print(rewardMatrix[i][j])
         print(" ")
     print("\n")
-
