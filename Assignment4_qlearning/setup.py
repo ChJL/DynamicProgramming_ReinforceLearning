@@ -127,6 +127,47 @@ def Heuristic(Goal_x, Goal_y, Simu_vec, Simu_t, Conge_cost):
     H_cost = np.append(H_cost, total_cost)
   return H_cost
 
+
+# Q learning 
+
+def QLearning(Goal_x, Goal_y, Q, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99, Simu_t, Simu_vec, Conge_cost):
+  Q_cost = np.array([])
+
+  for t in range(Simu_t):
+    i = int(Simu_vec[t,0])
+    j = int(Simu_vec[t,1])
+    total_cost = 0
+    
+    if Eps > 0.01:
+      Eps -= Eps_decay
+
+    while i != Goal_x or j != Goal_y:
+      Qtmp = np.array(Q)
+      moves = np.array([])
+      move_cost = np.array([])
+      # possible moves:
+      if i != N-1:
+        moves = np.append(moves, 1) # down
+        move_cost = np.append(move_cost, Conge_cost[i,j,1])
+      if i != 0:
+        moves = np.append(moves, 0) # up
+        move_cost = np.append(move_cost, Conge_cost[i,j,0])
+      if j != N-1:
+        moves = np.append(moves, 3) # right
+        move_cost = np.append(move_cost, Conge_cost[i,j,3])
+      if j != 0:
+        moves = np.append(moves, 2) # left
+        move_cost = np.append(move_cost, Conge_cost[i,j,2])
+      
+      # explore
+      random_pick = np.random.rand()
+      if Eps > random_pick:
+        next_move = np.randeom.choice(moves)
+      
+      #exploit
+      else:
+
+
 # this row would take about 37 seconds
 mincost = min_cost(conge_weight, N, goal_x, goal_y)
 
@@ -138,4 +179,9 @@ for i in range(simulation_size):
 
 # Simple Heuristic 
 h_cost = Heuristic(goal_x, goal_y, simulation_array, simulation_size, conge_weight)
+
+# Q learning
+Q_vec = np.zeros((N,N,4))
+
+
 
