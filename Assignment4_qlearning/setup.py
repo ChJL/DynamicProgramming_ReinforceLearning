@@ -130,10 +130,24 @@ def Heuristic(Goal_x, Goal_y, Simu_vec, Simu_t, Conge_cost):
 
 # Q learning 
 
-def QLearning(Goal_x, Goal_y, Q, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99, Simu_t, Simu_vec, Conge_cost):
+def findMaxQ(Q, x, y, Moves):
+  q_max = -1000000
+  move_dec = 0
+  #print("moves in function: ",Moves)
+  for mv in Moves:
+    mv_i = int(mv)
+    #print(Q[x,y,mv_i])
+    if Q[x,y,mv_i] >= q_max:
+      q_max = Q[x,y,mv_i]
+      move_dec = mv_i
+  return [move_dec, q_max]
+
+def QLearning(Goal_x, Goal_y, Q, Simu_t, Simu_vec, Conge_cost, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99):
   Q_cost = np.array([])
 
   for t in range(Simu_t):
+    print("simu time :", t)
+    print("start coordinate: ",Simu_vec[t])
     i = int(Simu_vec[t,0])
     j = int(Simu_vec[t,1])
     total_cost = 0
@@ -145,6 +159,8 @@ def QLearning(Goal_x, Goal_y, Q, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99
       Qtmp = np.array(Q)
       moves = np.array([])
       move_cost = np.array([])
+
+      flag = 0
       # possible moves:
       if i != N-1:
         moves = np.append(moves, 1) # down
@@ -159,29 +175,89 @@ def QLearning(Goal_x, Goal_y, Q, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99
         moves = np.append(moves, 2) # left
         move_cost = np.append(move_cost, Conge_cost[i,j,2])
       
+
       # explore
       random_pick = np.random.rand()
       if Eps > random_pick:
-        next_move = np.randeom.choice(moves)
+        next_move = np.random.choice(moves)
       
       #exploit
       else:
+        #print("======= Exploit Q =======")
+        Q_val = findMaxQ(Qtmp, i, j, moves)
+        next_move = Q_val[0]
+        flag = 1
+      
+      # update location by move
+      next_loc = []
+      if next_move == 1:
+        next_loc = [i+1, j]
+      elif next_move == 0:
+        next_loc = [i-1, j]
+      elif next_move == 3:
+        next_loc = [i, j+1]
+      elif next_move == 2:
+        next_loc = [i, j-1]
+      
+      # possible moves for next state
+      moves_next_state = np.array([])
+      if next_loc[0] != N-1:
+        moves_next_state = np.append(moves_next_state, 1) # down
+        
+      if next_loc[0] != 0:
+        moves_next_state = np.append(moves_next_state, 0) # up
 
+      if next_loc[1] != N-1:
+        moves_next_state = np.append(moves_next_state, 3) # right
+
+      if next_loc[1] != 0:
+        moves_next_state = np.append(moves_next_state, 2) # left
+
+      
+      # the reward (cost) which would be use in the following formula
+      next_move_i = int(next_move)
+      reward = Conge_cost[i,j,next_move_i]
+
+      # Q(t+1, a)
+      #print("current loc", i,j)
+      #print("possible moves ", moves)
+      #print("next move: ", next_move_i)
+      #print("0 for explore , 1 for exploit: ", flag)
+      Q_val_next = findMaxQ(Qtmp,next_loc[0],next_loc[1], moves_next_state)
+
+      # Update Q 
+      Q[i,j,next_move_i] = (1-Lr)*Qtmp[i,j,next_move_i] + Lr*(-reward + Gamma*Q_val_next[1])
+      total_cost += reward
+      
+      i = next_loc[0]
+      j = next_loc[1]
+
+    Q_cost = np.append(Q_cost, total_cost)
+    print("total cost: ", total_cost)
+
+  return Q_cost, Q
 
 # this row would take about 37 seconds
 mincost = min_cost(conge_weight, N, goal_x, goal_y)
 
+
 # Heuristic simulation parameter:
-simulation_size = 2
+simulation_size = 100
 simulation_array = np.zeros((simulation_size,2))
 for i in range(simulation_size):
   simulation_array[i] = np.random.choice(49,2)
 
+'''
 # Simple Heuristic 
 h_cost = Heuristic(goal_x, goal_y, simulation_array, simulation_size, conge_weight)
+'''
 
 # Q learning
 Q_vec = np.zeros((N,N,4))
+qlearning_cost, New_Q = QLearning(goal_x,goal_y,Q_vec, simulation_size, simulation_array,conge_weight)
+
+
+
 
 
 
