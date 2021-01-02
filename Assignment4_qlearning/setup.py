@@ -142,7 +142,7 @@ def findMaxQ(Q, x, y, Moves):
       move_dec = mv_i
   return [move_dec, q_max]
 
-def QLearning(Goal_x, Goal_y, Q, Simu_t, Simu_vec, Conge_cost, Lr=0.01, Eps=0.3, Eps_decay=0.00005, Gamma=0.99):
+def QLearning(Goal_x, Goal_y, Q, Simu_t, Simu_vec, Conge_cost, Lr=0.1, Eps=0.3, Eps_decay=0.00005, Gamma=0.99):
   Q_cost = np.array([])
 
   for t in range(Simu_t):
@@ -151,9 +151,13 @@ def QLearning(Goal_x, Goal_y, Q, Simu_t, Simu_vec, Conge_cost, Lr=0.01, Eps=0.3,
     i = int(Simu_vec[t,0])
     j = int(Simu_vec[t,1])
     total_cost = 0
+    total_step = 0
+
     
     if Eps > 0.01:
       Eps -= Eps_decay
+    if Lr > 0.01:
+        Lr -= 0.0001 
 
     while i != Goal_x or j != Goal_y:
       Qtmp = np.array(Q)
@@ -225,15 +229,23 @@ def QLearning(Goal_x, Goal_y, Q, Simu_t, Simu_vec, Conge_cost, Lr=0.01, Eps=0.3,
       #print("0 for explore , 1 for exploit: ", flag)
       Q_val_next = findMaxQ(Qtmp,next_loc[0],next_loc[1], moves_next_state)
 
-      # Update Q 
+
+
+      # Update Q
+      
       Q[i,j,next_move_i] = (1-Lr)*Qtmp[i,j,next_move_i] + Lr*(-reward + Gamma*Q_val_next[1])
       total_cost += reward
+
+      
       
       i = next_loc[0]
       j = next_loc[1]
 
+      total_step +=1
+
     Q_cost = np.append(Q_cost, total_cost)
     print("total cost: ", total_cost)
+    print("total step: ", total_step)
 
   return Q_cost, Q
 
