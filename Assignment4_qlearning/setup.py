@@ -39,49 +39,53 @@ for i in range(N):
 # Calculate the minimum cost in each state, and record the next action
 
 def min_cost(Conge_weight, n, Goal_x, Goal_y):
-    # (Cost to goal coordinate, next action - 0:x-1 up , 1:x+1 down, 2: y-1 left, 3:y+1 right
-    mincost_matrix = np.zeros((n, n, 2))
-    mincost_matrix[0, 9, 0] = 0
-    loop = 0
-    not_change = 0
-    while loop < 2502:
-        matrix_tmp = np.array(mincost_matrix)
-        loop += 1
-        for i in range(n):
-            for j in range(n):
-                if i == Goal_x and j == Goal_y:
-                    mincost_matrix[i, j, 0] = 0
-                else:
-                    cost = np.array([])
-                    next_action = np.array([])
-                    if i != 0:
-                        cost = np.append(cost, matrix_tmp[i - 1, j, 0] + Conge_weight[i - 1, j, 0])
-                        next_action = np.append(next_action, 0)
-                    if i != N - 1:
-                        cost = np.append(cost, matrix_tmp[i + 1, j, 0] + Conge_weight[i + 1, j, 1])
-                        next_action = np.append(next_action, 1)
-                    if j != 0:
-                        cost = np.append(cost, matrix_tmp[i, j - 1, 0] + Conge_weight[i, j - 1, 2])
-                        next_action = np.append(next_action, 2)
-                    if j != N - 1:
-                        cost = np.append(cost, matrix_tmp[i, j + 1, 0] + Conge_weight[i, j + 1, 3])
-                        next_action = np.append(next_action, 3)
+	# (Cost to goal coordinate, previous action)
+  mincost_matrix = np.zeros((n,n,2))
+  mincost_matrix[0,9,0] = 0
+  mincost_present = np.zeros(((n,n)))
+  loop = 0
+  not_change = 0
+  while loop < 2502:
+    matrix_tmp = np.array(mincost_matrix)
+    loop +=1
+    for i in range (n):
+      for j in range (n):
+        if i == Goal_x and j == Goal_y:
+          mincost_matrix[i,j,0] = 0
+          mincost_present[i,j] = 0
+        else:
+          cost = np.array([])
+          next_action = np.array([])
+          if i != 0 :
+            cost = np.append(cost, matrix_tmp[i-1,j,0] + Conge_weight[i-1,j,0])
+            next_action = np.append(next_action,0)
+          if i != N-1 :
+            cost = np.append(cost, matrix_tmp[i+1,j,0] + Conge_weight[i+1,j,1])
+            next_action = np.append(next_action, 1)
+          if j != 0 :
+            cost = np.append(cost, matrix_tmp[i,j-1,0] + Conge_weight[i,j-1,2])
+            next_action = np.append(next_action, 2)
+          if j != N-1 : 
+            cost = np.append(cost, matrix_tmp[i,j+1,0] + Conge_weight[i,j+1,3])
+            next_action = np.append(next_action, 3)
+          
+          mincost_matrix[i,j,0] = np.min(cost)
+          mincost_present[i,j] = np.min(cost)
+          key = np.argmin(cost)
+          try:
+            mincost_matrix[i,j,1] = next_action[key]
+          except:
+            print("len of cost", len(cost))
+            print("error")
+            break
 
-                    mincost_matrix[i, j, 0] = np.min(cost)
-                    key = np.argmin(cost)
-                    try:
-                        mincost_matrix[i, j, 1] = next_action[key]
-                    except:
-                        print("len of cost", len(cost))
-                        print("error")
-                        break
 
-        # print("step: ", loop)
-        if np.array_equal(matrix_tmp, mincost_matrix):
-            not_change += 1
-            if not_change == 2:
-                break
-    return mincost_matrix
+    #print("step: ", loop)
+    if np.array_equal(matrix_tmp , mincost_matrix):
+      not_change +=1
+      if not_change == 50:
+        break
+  return mincost_matrix, mincost_present
 
 
 # simple Heuristic, this function would return an array of Costs
@@ -278,7 +282,7 @@ def move(i, j, action):
 
 
 # this row would take about 37 seconds
-mincost = min_cost(conge_weight, N, goal_x, goal_y)
+mincost, mincost_pres = min_cost(conge_weight, N, goal_x, goal_y)
 
 # Heuristic simulation parameter:
 simulation_size = 100
