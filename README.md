@@ -13,17 +13,17 @@ This repository showcases the implementation procedure and solutions to the four
 
 ## 1. Airline Revenue Management
 <p align="center">
-    <img src="Assignment1_Revenue_Management/ass1_description.png" id="img-ass1des" width="800" height="450"/>
+    <img src="Assignment1_Revenue_Management/ass1_description.png" id="img-ass1des" width="720" height="405"/>
 </p>
 
 ## 2. Deteriorating System Problem
 <p align="center">
-    <img src="Assignment2_MDP/ass2_description.png" id="img-ass2des" width="800" height="450" />
+    <img src="Assignment2_MDP/ass2_description.png" id="img-ass2des" width="720" height="405" />
 </p>
 
 ## 3. Tic Tac Toe game - Monte Carlo Tree Search
 <p align="center">
-    <img src="Assignment3_MCTS/ass3_description.png" id="img-ass3des" width="800" height="450" />
+    <img src="Assignment3_MCTS/ass3_description.png" id="img-ass3des" width="750" height="450" />
 </p>
 
 ## 4. Grid World - Q Learning
