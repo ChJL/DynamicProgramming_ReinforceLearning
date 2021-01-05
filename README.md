@@ -13,12 +13,12 @@ This repository showcases the implementation procedure and solutions to the four
 
 ## 1. Airline Revenue Management
 <p align="center">
-    <img src="Assignment1_Revenue_Management/ass1_description.png" id="img-ass1des" width="720" height="405"/>
+    <img src="Assignment1_Revenue_Management/ass1_description.png" id="img-ass1des" width="680" height="385"/>
 </p>
 
 ## 2. Deteriorating System Problem
 <p align="center">
-    <img src="Assignment2_MDP/ass2_description.png" id="img-ass2des" width="720" height="405" />
+    <img src="Assignment2_MDP/ass2_description.png" id="img-ass2des" width="680" height="385" />
 </p>
 
 ## 3. Tic Tac Toe game - Monte Carlo Tree Search
